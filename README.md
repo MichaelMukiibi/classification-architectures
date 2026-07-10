@@ -46,7 +46,13 @@ Install the execution wrapper globally or in an isolated tool environment using 
 uv tool install google-colab-cli
 ```
 
-### 2. Ephemeral One-Shot Execution (Recommended)
+### 2. Export W&B API key to current local terminal session
+```bash
+export $(cat .env | xargs)
+
+```
+
+### 3. Ephemeral One-Shot Execution (Recommended)
 Trigger a remote, ephemeral NVIDIA T4 GPU instance, auto-forward local script execution arguments, and automatically tear down the compute node upon completion to prevent accidental credit over-use:
 ```bash
 # Run PyTorch Benchmark Remotely
@@ -55,7 +61,7 @@ colab run --gpu T4 pytorch_impl/train.py --model resnet --dataset cifar10 --epoc
 # Run TensorFlow Benchmark Remotely
 colab run --gpu T4 tensorflow_impl/train.py --model resnet --dataset cifar10 --epochs 10
 ```
-### 3. Persistent Session Execution (Alternative)
+### 4. Persistent Session Execution (Alternative)
 
 If you need to execute multiple experiments on the same active hardware instance without reloading the dataset repeatedly:
 
