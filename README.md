@@ -56,10 +56,10 @@ export $(cat .env | xargs)
 Trigger a remote, ephemeral NVIDIA T4 GPU instance, auto-forward local script execution arguments, and automatically tear down the compute node upon completion to prevent accidental credit over-use:
 ```bash
 # Run PyTorch Benchmark Remotely
-colab run --gpu T4 --env WANDB_API_KEY=$WANDB_API_KEY pytorch_impl/train.py --model resnet --dataset cifar10 --epochs 10
+colab run --gpu T4 pytorch_impl/train.py --model resnet --dataset cifar10 --epochs 10 --wandb_key $WANDB_API_KEY
 
 # Run TensorFlow Benchmark Remotely
-colab run --gpu T4 --env WANDB_API_KEY=$WANDB_API_KEY tensorflow_impl/train.py --model resnet --dataset cifar10 --epochs 10
+colab run --gpu T4 tensorflow_impl/train.py --model resnet --dataset cifar10 --epochs 10 --wandb_key $WANDB_API_KEY
 ```
 ### 4. Persistent Session Execution (Alternative)
 

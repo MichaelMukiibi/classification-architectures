@@ -30,6 +30,11 @@ def get_args():
         default=10,
         help="Number of full training epochs"
     )
+    parser.add_argument("--wandb_key",
+        type=str,
+        default=None, 
+        help="Weights & Biases API Key"
+    )
     
     # Optional Hyperparameters (Defaults Maintained)
     parser.add_argument("--batch_size", type=int, default=128)
@@ -68,6 +73,10 @@ def build_model(model_name):
 
 def main():
     args = get_args()
+
+    # Pass Weights & Biases API key
+    if args.wandb_key:
+        wandb.login(key=args.wandb_key)
 
     # Initialize the Weights & Biases experiment track tracking context
     wandb.init(
