@@ -36,6 +36,45 @@ cd tensorflow_impl
 python train.py --model resnet --dataset cifar10 --epochs 10
 ```
 
+## Cloud Execution via Google Colab CLI
+
+To run training benchmarks on a high-performance remote GPU without installing heavy machine learning frameworks or downloading datasets locally, use the Google Colab CLI toolchain.
+
+### 1. Install the Colab CLI Tool
+Install the execution wrapper globally or in an isolated tool environment using `uv`:
+```bash
+uv tool install google-colab-cli
+```
+
+### 2. Ephemeral One-Shot Execution (Recommended)
+Trigger a remote, ephemeral NVIDIA T4 GPU instance, auto-forward local script execution arguments, and automatically tear down the compute node upon completion to prevent accidental credit over-use:
+```bash
+# Run PyTorch Benchmark Remotely
+colab run --gpu T4 pytorch_impl/train.py --model resnet --dataset cifar10 --epochs 10
+
+# Run TensorFlow Benchmark Remotely
+colab run --gpu T4 tensorflow_impl/train.py --model resnet --dataset cifar10 --epochs 10
+```
+### 3. Persistent Session Execution (Alternative)
+
+If you need to execute multiple experiments on the same active hardware instance without reloading the dataset repeatedly:
+
+1. **Provision a dedicated runtime session**:
+```bash
+colab new -s benchmark-session --gpu T4
+```
+2. **Execute your local script directly on the active cluster node**:
+
+```bash
+colab exec -s benchmark-session -f pytorch_impl/train.py -- --model resnet --dataset cifar10 --epochs 10
+```
+
+3. **Terminate the session manually when finished**:
+```bash
+colab stop -s benchmark-session
+```
+
+
 ## Evaluation Metrics
 
 The scripts output validation accuracy, tracking convergence loss curves, and logging per-class evaluation metrics upon training termination.
