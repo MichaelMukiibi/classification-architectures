@@ -1,5 +1,6 @@
 import argparse
 import torch
+import wandb
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -48,6 +49,14 @@ def build_model(model_name):
 
 def main():
     args = get_args()
+
+    # Initialize the Weights & Biases experiment track tracking context
+    wandb.init(
+        project="cifar10-benchmark",
+        name=f"pytorch-{args.model}",
+        config=vars(args) # Logs hyperparameters dynamically
+    )
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device} | Model: {args.model}")
 
@@ -88,6 +97,13 @@ def main():
         epoch_acc = 100.0 * correct / total
         print(f"Epoch [{epoch+1}/{args.epochs}] -> Loss: {epoch_loss:.4f} | Train Acc: {epoch_acc:.2f}%")
 
+        # Send training scalars directly to the remote dashboard matrices
+        wandb.log({
+            "epoch": epoch + 1,
+            "train/loss": epoch_loss,
+            "train/accuracy": epoch_acc
+        })
+
     # Evaluation loop
     model.eval()
     correct, total = 0, 0
@@ -100,6 +116,12 @@ def main():
             correct += predicted.eq(labels).sum().item()
 
     print(f"\nFinal Validation Accuracy for {args.model}: {100.0 * correct / total:.2f}%")
+
+    final_acc = 100.0 * correct / total
+
+    # Record validation summaries and close active runner thread safely
+    wandb.log({"val/accuracy": final_acc})
+    wandb.finish()
 
 if __name__ == "__main__":
     main()
