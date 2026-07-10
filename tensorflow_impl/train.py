@@ -3,6 +3,9 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from transformers import SwinConfig, TFSwinForImageClassification
 
+import wandb
+from wandb.keras import WandbMetricsLogger
+
 def get_args():
     parser = argparse.ArgumentParser(description="Classification Benchmark API")
     
@@ -26,6 +29,11 @@ def get_args():
         type=int, 
         default=10,
         help="Number of full training epochs"
+    )
+    parser.add_argument("--wandb_key",
+        type=str,
+        default=None, 
+        help="Weights & Biases API Key"
     )
     
     # Optional Hyperparameters (Defaults Maintained)
@@ -65,6 +73,18 @@ def build_model(model_name):
 
 def main():
     args = get_args()
+
+    # Pass Weights & Biases API key
+    if args.wandb_key:
+        wandb.login(key=args.wandb_key)
+
+    # Initialize the Weights & Biases experiment track tracking context
+    wandb.init(
+        project="cifar10-benchmark",
+        name=f"tensorflow-{args.model}",
+        config=vars(args) # Logs hyperparameters dynamically
+    )
+
     print(f"Target Configuration | Model: {args.model} | Device Availability: {tf.config.list_physical_devices('GPU')}")
 
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
@@ -93,7 +113,10 @@ def main():
         metrics=["accuracy"]
     )
 
-    model.fit(train_dataset, epochs=args.epochs, validation_data=test_dataset)
+    model.fit(train_dataset, epochs=args.epochs, validation_data=test_dataset, callbacks=[WandbMetricsLogger(log_freq="epoch")])
+
+    # Record final validation accuracy and close active runner thread safely
+    wandb.finish()  
 
 if __name__ == "__main__":
     main()
