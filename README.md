@@ -56,10 +56,10 @@ export $(cat .env | xargs)
 Trigger a remote, ephemeral NVIDIA T4 GPU instance, auto-forward local script execution arguments, and automatically tear down the compute node upon completion to prevent accidental credit over-use:
 ```bash
 # Run PyTorch Benchmark Remotely
-colab run --gpu T4 pytorch_impl/train.py --model resnet --dataset cifar10 --epochs 10
+colab run --gpu T4 --env WANDB_API_KEY=$WANDB_API_KEY pytorch_impl/train.py --model resnet --dataset cifar10 --epochs 10
 
 # Run TensorFlow Benchmark Remotely
-colab run --gpu T4 tensorflow_impl/train.py --model resnet --dataset cifar10 --epochs 10
+colab run --gpu T4 --env WANDB_API_KEY=$WANDB_API_KEY tensorflow_impl/train.py --model resnet --dataset cifar10 --epochs 10
 ```
 ### 4. Persistent Session Execution (Alternative)
 
@@ -67,12 +67,12 @@ If you need to execute multiple experiments on the same active hardware instance
 
 1. **Provision a dedicated runtime session**:
 ```bash
-colab new -s benchmark-session --gpu T4
+colab new -s benchmark-session --env WANDB_API_KEY=$WANDB_API_KEY --gpu T4
 ```
 2. **Execute your local script directly on the active cluster node**:
 
 ```bash
-colab exec -s benchmark-session -f pytorch_impl/train.py -- --model resnet --dataset cifar10 --epochs 10
+colab exec -s benchmark-session --env WANDB_API_KEY=$WANDB_API_KEY -f pytorch_impl/train.py -- --model resnet --dataset cifar10 --epochs 10
 ```
 
 3. **Terminate the session manually when finished**:
